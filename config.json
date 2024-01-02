@@ -1,0 +1,25 @@
+{
+    "backward_time_s": 0.5,
+    "pause_time_s": 0.5,
+    "feed_times": [
+        {
+            "timeofday": "09:00",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "12:00",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "15:00",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "18:00",
+            "feed_time_s": 1.5
+        }
+    ],
+    "gpiochip_name": "/dev/gpiochip1",
+    "forward_line": 17,
+    "backward_line": 27
+}

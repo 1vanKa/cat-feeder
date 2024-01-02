@@ -4,29 +4,9 @@ project(cat-feeder LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 # set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE feeder-sources
-    src/*.c
-    include/*.h
-)
-
 add_executable(feeder main.c)
 
-add_library(feeder-lib ${feeder-sources})
-
-# find_package(Threads REQUIRED QUIET)
-
-target_include_directories(feeder-lib
-    PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/feeder>
-        $<INSTALL_INTERFACE:include/feeder>
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-)
-
-# target_link_libraries(bldc-control
-#     PRIVATE
-#         Threads::Threads)
+include(cmake/modules/feeder.cmake)
 
 # get_target_property(node-computing_includes node-computing INCLUDE_DIRECTORIES)
 
@@ -37,3 +17,5 @@ target_include_directories(feeder-lib
 target_link_libraries(feeder
     PRIVATE
         feeder-lib)
+
+configure_file(config.json .)
