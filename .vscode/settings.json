@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "feeder.h": "c"
+        "feeder.h": "c",
+        "feed-manager.h": "c",
+        "json.h": "c"
     }
 }

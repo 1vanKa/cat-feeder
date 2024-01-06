@@ -1,5 +1,6 @@
 file(GLOB_RECURSE feeder-sources
     src/*.c
+    src/*.h
     include/*.h
 )
 

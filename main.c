@@ -16,7 +16,10 @@ int main(int argc, char *argv[]) {
     if (ret) {
         return ret;
     }
-    feeder_feed(&feeder, 1.f);
+    for (int i = 0; i < 1; ++i)
+    if (ret = feeder_feed(&feeder, 1.f)) {
+        return ret;
+    }
     feeder_free(&feeder);
     return 0;
 }
