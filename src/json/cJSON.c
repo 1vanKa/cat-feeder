@@ -58,7 +58,8 @@ int cJSON_json_get_str(const_json_ptr json, const char *item_name, const char **
     if (!cJSON_IsString(str_json)) {
         return -1;
     }
-    *str = str_json->valuestring;
+    *str = malloc(strlen(str_json->valuestring));
+    strcpy((char*)*str, str_json->valuestring);
     return 0;
 }
 
@@ -72,6 +73,7 @@ json_interface* cJSON_json_interface() {
         interface.parse_file = cJSON_json_parse_file;
         interface.get_double = cJSON_json_get_double;
         interface.get_int = cJSON_json_get_int;
+        interface.get_str = cJSON_json_get_str;
     }
     return &interface;
 }
