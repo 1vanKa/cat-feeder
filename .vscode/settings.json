@@ -3,5 +3,25 @@
         "feeder.h": "c",
         "feed-manager.h": "c",
         "json.h": "c"
-    }
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#dee8b0",
+        "activityBar.background": "#dee8b0",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#3aacc5",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#15202b99",
+        "sash.hoverBorder": "#dee8b0",
+        "statusBar.background": "#cedc89",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#bed062",
+        "statusBarItem.remoteBackground": "#cedc89",
+        "statusBarItem.remoteForeground": "#15202b",
+        "titleBar.activeBackground": "#cedc89",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#cedc8999",
+        "titleBar.inactiveForeground": "#15202b99"
+    },
+    "peacock.color": "#cedc89"
 }

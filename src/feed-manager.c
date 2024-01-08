@@ -1,19 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "json/json.h"
+#include "json/cJSON.c"
 #include "feed-manager.h"
 
 int feed_manager_init(feed_manager *manager, const char *config_path) {
-    json_t *json_config = NULL;
+    json_interface iJson = *cJSON_json_interface();
+    json_ptr json_config = NULL;
     int ret = 0;
-    ret = json_parse_file((const json_t **)&json_config, config_path);
+    ret = iJson.parse_file(&json_config, config_path);
     if (ret) {
         return ret;
     }
 
     double backward_time_s;
-    ret = json_get_double(json_config, "backward_time_s", &backward_time_s);
+    ret = iJson.get_double(json_config, "backward_time_s", &backward_time_s);
     if (ret) {
         return ret;
     }
