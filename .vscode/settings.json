@@ -1,8 +1,6 @@
 {
     "files.associations": {
-        "feeder.h": "c",
-        "feed-manager.h": "c",
-        "json.h": "c"
+        "*.h": "c",
     },
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#dee8b0",
