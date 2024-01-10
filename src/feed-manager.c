@@ -31,7 +31,7 @@ int parse_config(feed_manager *manager, const char *config_path) {
     char *gpiochip_name = NULL;
     FREE_ON_NON0(ijson.get_str(json_config, "gpiochip_name", &gpiochip_name));
     feeder_init(&manager->feeder, gpiochip_name, forward_line, backward_line,
-    backward_time_s, pause_time_s);
+                backward_time_s, pause_time_s);
     free(gpiochip_name);
 
     json_ptr *json_feed_times;
@@ -47,10 +47,13 @@ int parse_config(feed_manager *manager, const char *config_path) {
     for (int i = 0; i < arr_length; ++i) {
         FREE_ON_NON0(ijson.get_double(json_feed_times[i], "feed_time_s",
                                       &manager->feeds[i].feed_time_s));
-        FREE_ON_NON0(ijson.get_str(json_feed_times[i], "timeofday",
-                                   &manager->feeds[i].timeofday));
-        printf("Time: %s; Feed: %.3fs\n", manager->feeds[i].timeofday,
-               manager->feeds[i].feed_time_s);
+        char *timeofday;
+        FREE_ON_NON0(
+            ijson.get_str(json_feed_times[i], "timeofday", &timeofday));
+        strptime(timeofday, "%R", &manager->feeds[i].time);
+        char time[20] = {0};
+        strftime(time, 20, "%FT%T", &manager->feeds[i].time);
+        printf("Time: %s; Feed: %.3fs\n", time, manager->feeds[i].feed_time_s);
     }
 
     // char *json_str = cJSON_Print(json_config);
@@ -60,6 +63,8 @@ int parse_config(feed_manager *manager, const char *config_path) {
     return 0;
 }
 
+#undef FREE_ON_NON0
+
 int feed_manager_init(feed_manager *manager, const char *config_path) {
     parse_config(manager, config_path);
     return 0;
@@ -67,8 +72,18 @@ int feed_manager_init(feed_manager *manager, const char *config_path) {
 
 void feed_manager_free(feed_manager *manager) {
     feeder_free(&manager->feeder);
-    for (int i = 0; i < manager->items_len; ++i) {
-        free(manager->feeds[i].timeofday);
-    }
     free(manager->feeds);
+}
+
+int feed_manager_manage(feed_manager *manager) {
+    time_t time_now, time_prev;
+    struct tm time_info;
+    time_prev = time(NULL);
+    do {
+        time_now = time(NULL);
+        localtime_r(&time_now, &time_info);
+        // difftime();
+
+        time_prev = time_now;
+    } while (1);
 }

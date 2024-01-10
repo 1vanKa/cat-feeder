@@ -1,10 +1,14 @@
 #ifndef FEED_CONTROLLER_H
 #define FEED_CONTROLLER_H
 
+#define __USE_XOPEN
+#include <time.h>
+#undef __USE_XOPEN
+
 #include "feeder.h"
 
 typedef struct {
-    char *timeofday;
+    struct tm time;
     double feed_time_s;
 } feed_item;
 

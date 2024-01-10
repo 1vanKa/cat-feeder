@@ -19,7 +19,7 @@
             "feed_time_s": 1.5
         }
     ],
-    "gpiochip_name": "/dev/gpiochip1",
+    "gpiochip_name": "/dev/gpiochip0",
     "forward_line": 17,
     "backward_line": 27
 }
