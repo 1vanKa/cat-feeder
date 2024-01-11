@@ -15,6 +15,22 @@
             "feed_time_s": 1.5
         },
         {
+            "timeofday": "01:12",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "01:13",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "01:14",
+            "feed_time_s": 1.5
+        },
+        {
+            "timeofday": "01:15",
+            "feed_time_s": 1.5
+        },
+        {
             "timeofday": "18:00",
             "feed_time_s": 1.5
         }

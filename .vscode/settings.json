@@ -2,6 +2,7 @@
     "files.associations": {
         "*.h": "c",
     },
+    "peacock.color": "#cedc89",
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#dee8b0",
         "activityBar.background": "#dee8b0",
@@ -21,5 +22,5 @@
         "titleBar.inactiveBackground": "#cedc8999",
         "titleBar.inactiveForeground": "#15202b99"
     },
-    "peacock.color": "#cedc89"
+    "peacock.remoteColor": "#cedc89"
 }
