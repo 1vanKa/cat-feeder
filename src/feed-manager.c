@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "feed-manager.h"
-#include "json/cJSON.c"
+#include "json/cJSON.h"
 
 #define FREE_ON_NON0(func_call)                                                \
     ret = func_call;                                                           \
@@ -10,6 +11,17 @@
         feed_manager_free(manager);                                            \
         return ret;                                                            \
     }
+
+int tm_hours_mins_to_mins(struct tm *time) {
+    return time->tm_hour * 60 + time->tm_min;
+}
+
+int feed_item_compare(const void *s1, const void *s2) {
+    feed_item *fi1 = (feed_item *)s1;
+    feed_item *fi2 = (feed_item *)s2;
+    return tm_hours_mins_to_mins(&fi1->time) -
+           tm_hours_mins_to_mins(&fi2->time);
+}
 
 int parse_config(feed_manager *manager, const char *config_path) {
     memset(manager, 0, sizeof(*manager));
@@ -43,7 +55,9 @@ int parse_config(feed_manager *manager, const char *config_path) {
         feed_manager_free(manager);
         return -1;
     }
+    manager->feeds_len = arr_length;
     memset(manager->feeds, 0, sizeof(*manager->feeds) * arr_length);
+    // FIXME: check is time valid in config
     for (int i = 0; i < arr_length; ++i) {
         FREE_ON_NON0(ijson.get_double(json_feed_times[i], "feed_time_s",
                                       &manager->feeds[i].feed_time_s));
@@ -51,6 +65,16 @@ int parse_config(feed_manager *manager, const char *config_path) {
         FREE_ON_NON0(
             ijson.get_str(json_feed_times[i], "timeofday", &timeofday));
         strptime(timeofday, "%R", &manager->feeds[i].time);
+        char time[20] = {0};
+        strftime(time, 20, "%FT%T", &manager->feeds[i].time);
+        printf("Time: %s; Feed: %.3fs\n", time, manager->feeds[i].feed_time_s);
+    }
+
+    qsort(manager->feeds, manager->feeds_len, sizeof(*manager->feeds),
+          feed_item_compare);
+
+    printf("\n");
+    for (int i = 0; i < arr_length; ++i) {
         char time[20] = {0};
         strftime(time, 20, "%FT%T", &manager->feeds[i].time);
         printf("Time: %s; Feed: %.3fs\n", time, manager->feeds[i].feed_time_s);
@@ -75,15 +99,67 @@ void feed_manager_free(feed_manager *manager) {
     free(manager->feeds);
 }
 
+void tm_update_all_except_hour_min(struct tm *dst_time, struct tm *src_time) {
+    int hours, mins;
+    hours = dst_time->tm_hour;
+    mins = dst_time->tm_min;
+    memcpy(dst_time, src_time, sizeof(*dst_time));
+    dst_time->tm_hour = hours;
+    dst_time->tm_min = mins;
+}
+
+int find_first_feed(feed_manager *mngr, struct tm *time_info_now) {
+    if (mngr->feeds_len < 1) {
+        return -1;
+    }
+    for (int i = 0; i < mngr->feeds_len; ++i) {
+        if (tm_hours_mins_to_mins(&mngr->feeds[i].time) >
+            tm_hours_mins_to_mins(time_info_now)) {
+            tm_update_all_except_hour_min(&mngr->feeds[i].time, time_info_now);
+            return i;
+        }
+    }
+    tm_update_all_except_hour_min(&mngr->feeds->time, time_info_now);
+    mngr->feeds->time.tm_mday += 1;
+    mktime(&mngr->feeds->time);
+    return 0;
+}
+
 int feed_manager_manage(feed_manager *manager) {
-    time_t time_now, time_prev;
+    useconds_t max_cycle_sleep = 1 * 60 * 1000000;
+    time_t time_now, time_feed;
     struct tm time_info;
-    time_prev = time(NULL);
+    int feed_index;
+    double secs_before_feed;
+    int ret;
+    time_feed = time(NULL);
+    localtime_r(&time_feed, &time_info);
+    feed_index = find_first_feed(manager, &time_info);
+    if (feed_index < 0) {
+        return -1;
+    }
     do {
         time_now = time(NULL);
         localtime_r(&time_now, &time_info);
-        // difftime();
-
-        time_prev = time_now;
-    } while (1);
+        time_feed = mktime(&manager->feeds[feed_index].time);
+        secs_before_feed = difftime(time_feed, time_now);
+        if (secs_before_feed <= 0) {
+            ret = feeder_feed(&manager->feeder,
+                              manager->feeds[feed_index].feed_time_s);
+            if (ret) {
+                return ret;
+            }
+            feed_index = (feed_index + 1) % manager->feeds_len;
+            tm_update_all_except_hour_min(&manager->feeds[feed_index].time,
+                                          &time_info);
+            if (feed_index == 0) {
+                manager->feeds[feed_index].time.tm_mday += 1;
+            }
+        } else {
+            usleep(secs_before_feed < max_cycle_sleep
+                       ? secs_before_feed * 1000000
+                       : max_cycle_sleep);
+        }
+    } while (0);
+    return 0;
 }

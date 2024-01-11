@@ -3,11 +3,11 @@
     "pause_time_s": 0.5,
     "feed_times": [
         {
-            "timeofday": "09:00",
+            "timeofday": "12:00",
             "feed_time_s": 1.5
         },
         {
-            "timeofday": "12:00",
+            "timeofday": "09:00",
             "feed_time_s": 1.5
         },
         {

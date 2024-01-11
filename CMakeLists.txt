@@ -4,6 +4,8 @@ project(cat-feeder LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 # set(CMAKE_CXX_STANDARD 17)
 
+add_compile_options(-Wall -Wextra -Wpedantic)
+
 add_executable(feeder main.c)
 
 include(cmake/modules/feeder.cmake)

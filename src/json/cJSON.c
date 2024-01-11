@@ -8,6 +8,20 @@
 
 #include "json.h"
 
+int cJSON_json_parse(json_ptr2 json, const char *json_str, size_t json_len) {
+    char *err = NULL;
+    *json =
+        cJSON_ParseWithLengthOpts(json_str, json_len, (const char **)&err, 0);
+    if (err != NULL && *json == NULL) {
+        fprintf(stderr, "Error before: %.*s\n",
+                (int)(json_len - (err - json_str)), err);
+    }
+    if (*json == NULL) {
+        return -1;
+    }
+    return 0;
+}
+
 int cJSON_json_parse_file(json_ptr2 json, const char *filepath) {
     int json_file = open(filepath, O_RDONLY);
     if (json_file < 0) {
@@ -19,19 +33,13 @@ int cJSON_json_parse_file(json_ptr2 json, const char *filepath) {
     if (!json_str) {
         return -1;
     }
-    int json_len = read(json_file, json_str, json_file_stat.st_size);
+    size_t json_len = read(json_file, json_str, json_file_stat.st_size);
     close(json_file);
 
-    char *err = NULL;
-    *json =
-        cJSON_ParseWithLengthOpts(json_str, json_len, (const char **)&err, 0);
-    if (err != NULL && *json == NULL) {
-        fprintf(stderr, "Error before: %.*s\n",
-                json_len - (int)(err - json_str), err);
-    }
+    int ret = cJSON_json_parse(json, json_str, json_len);
     free(json_str);
-    if (*json == NULL) {
-        return -1;
+    if (ret) {
+        return ret;
     }
     return 0;
 }
@@ -57,8 +65,7 @@ int cJSON_json_get_int(const_json_ptr json, const char *item_name, int *val) {
     return 0;
 }
 
-int cJSON_json_get_str(const_json_ptr json, const char *item_name,
-                       char **str) {
+int cJSON_json_get_str(const_json_ptr json, const char *item_name, char **str) {
     cJSON *str_json = cJSON_GetObjectItemCaseSensitive(json, item_name);
     if (!cJSON_IsString(str_json)) {
         return -1;
@@ -127,14 +134,11 @@ int cJSON_json_get_arr_items_pointers(const_json_ptr json,
     return 0;
 }
 
-/**
- * Returns json_interface which implemented on top of cJSON lib.
- * Do not free returned object, it is a reference to static variable.
- */
 json_interface *cJSON_json_impl() {
     static json_interface interface = {.free = NULL};
     if (interface.free == NULL) {
         interface.free = cJSON_json_free;
+        interface.parse = cJSON_json_parse;
         interface.parse_file = cJSON_json_parse_file;
         interface.get_double = cJSON_json_get_double;
         interface.get_int = cJSON_json_get_int;
